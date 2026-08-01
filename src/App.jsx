@@ -9,6 +9,7 @@ import FoodModal from './components/FoodModal';
 import CartDrawer from './components/CartDrawer';
 import FloatingCartBar from './components/FloatingCartBar';
 import ToastNotification from './components/ToastNotification';
+import ReviewBanner from './components/ReviewBanner';
 import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
@@ -39,6 +40,7 @@ export default function App() {
           <>
             <Navbar />
             <ToastNotification />
+            <ReviewBanner />
             <main>
               <Hero />
               <MenuSection onSelectItem={(item) => setSelectedFood(item)} />
