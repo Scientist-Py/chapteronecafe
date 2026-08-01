@@ -29,7 +29,7 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  // Handle WhatsApp Order & Voice Confirmation & Google Sheets Logging
+  // Handle WhatsApp Order & Impressive Voice Confirmation & Google Sheets Logging
   const handleCheckout = () => {
     // 1. Validation
     if (!customerName.trim()) {
@@ -45,7 +45,7 @@ export default function CartDrawer() {
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
     const dateFormatted = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
-    // 2. Play Voice Thank You Confirmation out loud!
+    // 2. Play Impressive Voice Confirmation out loud!
     speakThankYou(customerName.trim());
 
     // 3. Log order to Google Sheets in background
@@ -95,13 +95,13 @@ export default function CartDrawer() {
 
     const whatsappUrl = `https://wa.me/${restaurantInfo.whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
 
-    // 5. Clear cart & Redirect directly to WhatsApp with 1.2s buffer for voice playback
+    // 5. Clear cart & Redirect to WhatsApp with 1.8s buffer for impressive voice playback
     clearCart();
     setIsCartOpen(false);
 
     setTimeout(() => {
       window.location.href = whatsappUrl;
-    }, 1200);
+    }, 1800);
   };
 
   return (
@@ -256,7 +256,7 @@ export default function CartDrawer() {
                     </div>
                     <span className="text-[10px] text-amber-700 font-semibold bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
                       <Volume2 className="w-3 h-3 text-[#B8860B]" />
-                      <span>Voice Confirmation</span>
+                      <span>Executive Voice</span>
                     </span>
                   </div>
 
@@ -280,7 +280,7 @@ export default function CartDrawer() {
                         onChange={(e) => setCustomerName(e.target.value)}
                         onFocus={() => setFocusedField('name')}
                         onBlur={() => setFocusedField(null)}
-                        placeholder="e.g. Rajul"
+                        placeholder="e.g. Tushar"
                         className={`w-full px-3.5 py-2.5 rounded-xl bg-white text-xs text-[#1D1D1F] font-medium transition-all shadow-xs ${
                           focusedField === 'name'
                             ? 'border-2 border-[#B8860B] ring-2 ring-[#B8860B]/20 bg-amber-50/30'
@@ -357,7 +357,7 @@ export default function CartDrawer() {
 
           {/* Sticky WhatsApp Order Button Footer */}
           {cart.length > 0 && (
-            <div className="p-4 bg-white border-t border-gray-200 flex items-center justify-between gap-3 shadow-lg">
+            <div className="p-4 bg-[#FFFFFF] border-t border-gray-200 flex items-center justify-between gap-3 shadow-lg">
               <div>
                 <div className="text-[10px] text-secondaryText uppercase tracking-wider font-bold">Total Payable</div>
                 <div className="text-lg font-extrabold text-[#1D1D1F]">₹{cartSubtotal}</div>
