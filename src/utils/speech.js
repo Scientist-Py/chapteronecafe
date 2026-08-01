@@ -1,4 +1,4 @@
-// Natural Energetic Female Voice Thank-You Confirmation
+// Simple Natural Voice Thank-You Confirmation
 export function speakThankYouAndRedirect(name = '', redirectUrl = null) {
   try {
     if (!('speechSynthesis' in window)) {
@@ -9,38 +9,32 @@ export function speakThankYouAndRedirect(name = '', redirectUrl = null) {
     // Cancel any previous speech
     window.speechSynthesis.cancel();
 
-    const cleanName = name.trim();
-    const formattedName = cleanName ? `Mr. ${cleanName}` : 'for your order';
-
-    // Short, punchy, energetic female message
-    const text = `Thank you ${formattedName}! We are preparing your fresh order right now at Chapter One Cafe!`;
+    const cleanName = name.trim() || 'for your order';
+    
+    // Simple, clean, natural message: "Thank you Rahul for your order!"
+    const text = cleanName === 'for your order' 
+      ? 'Thank you for your order!' 
+      : `Thank you ${cleanName} for your order!`;
 
     const utterance = new SpeechSynthesisUtterance(text);
 
-    // Energetic & clear female voice settings
-    utterance.rate = 1.0;   // Energetic & crisp speed
-    utterance.pitch = 1.15;  // Warm, natural female pitch
+    // Natural voice settings
+    utterance.lang = 'en-IN'; // Indian English or natural fallback
+    utterance.rate = 0.95;   // Clear, natural speed
+    utterance.pitch = 1.0;   // Natural pitch
     utterance.volume = 1.0;  // Full volume
 
-    // Select natural female English voice
+    // Select natural voice
     const voices = window.speechSynthesis.getVoices();
     if (voices && voices.length > 0) {
-      const femaleVoice = voices.find(
+      const preferredVoice = voices.find(
         (v) =>
-          v.lang.startsWith('en') &&
-          (v.name.toLowerCase().includes('female') ||
-           v.name.includes('Google UK English Female') ||
-           v.name.includes('Google US English') ||
-           v.name.includes('Samantha') ||
-           v.name.includes('Karen') ||
-           v.name.includes('Victoria') ||
-           v.name.includes('Zira') ||
-           v.name.includes('Moira') ||
-           v.name.includes('Fiona'))
+          (v.lang.includes('en-IN') || v.lang.includes('en-US') || v.lang.includes('en-GB')) &&
+          (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Rishi'))
       ) || voices.find((v) => v.lang.startsWith('en'));
 
-      if (femaleVoice) {
-        utterance.voice = femaleVoice;
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
       }
     }
 
@@ -52,12 +46,12 @@ export function speakThankYouAndRedirect(name = '', redirectUrl = null) {
       }
     };
 
-    // Redirect ONLY when speech ends completely so WhatsApp never interrupts!
+    // Redirect ONLY when speech ends completely so WhatsApp never interrupts
     utterance.onend = doRedirect;
     utterance.onerror = doRedirect;
 
-    // Safety fallback timer (in case browser speech stalls)
-    setTimeout(doRedirect, 3500);
+    // Safety fallback timer
+    setTimeout(doRedirect, 2500);
 
     // Speak
     window.speechSynthesis.speak(utterance);
