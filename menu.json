@@ -1,0 +1,392 @@
+{
+  "restaurant": {
+    "name": "Chapter One Cafe",
+    "tagline": "Gourmet Food & Refreshing Drinks",
+    "contact_number": "8191868626",
+    "special_offers": [
+      {
+        "title": "Monday Exclusive Blockbuster Offer",
+        "details": "Buy Any 1 Large Pizza & Get 1 Medium Pizza FREE!",
+        "terms": "Valid only on Mondays"
+      }
+    ],
+    "add_ons_and_upgrades": {
+      "extra_cheese_slice": {
+        "description": "Upgrade any order: Layer a premium extra gourmet cheese slice onto your meal",
+        "price_inr": 20
+      },
+      "water_bottle": {
+        "description": "Packaged Water Bottle",
+        "price_inr": 20
+      },
+      "pizza_crust_extra_cheese": {
+        "regular": 40,
+        "medium": 60,
+        "large": 80
+      }
+    }
+  },
+  "menu_categories": [
+    {
+      "category_name": "Chef's Express",
+      "subtitle": "Ready in 5 Minutes!",
+      "items": [
+        {
+          "name": "Chapter One Special Burger",
+          "price_inr": 149
+        },
+        {
+          "name": "Cheesy Paneer Sub",
+          "price_inr": 149
+        },
+        {
+          "name": "Classic Cold Coffee",
+          "price_inr": 99
+        }
+      ]
+    },
+    {
+      "category_name": "The Grand Master",
+      "subtitle": "17-Inch Giant Pizza",
+      "items": [
+        {
+          "name": "The Grand Master 17\" Pizza",
+          "price_inr": 900,
+          "description": "A legendary monster crust cut into 12 colossal slices. Built for epic gatherings."
+        }
+      ]
+    },
+    {
+      "category_name": "Gourmet Crafted Pizzas",
+      "subtitle": "Hand-stretched fresh dough with custom herb tomato spread & premium toppings",
+      "pizzas": [
+        {
+          "name": "Chapter One Special",
+          "badge": "SIG",
+          "description": "Our house crown jewel. Double cheese blanket with full house veggie selections.",
+          "prices_inr": {
+            "regular": 229,
+            "medium": 379,
+            "large": 539
+          }
+        },
+        {
+          "name": "Tandoori Paneer",
+          "badge": "POP",
+          "description": "Marinated charcoal-smoked tandoori cottage cheese, sweet corn, crisp peppers, paprika.",
+          "prices_inr": {
+            "regular": 199,
+            "medium": 349,
+            "large": 519
+          }
+        },
+        {
+          "name": "Farmhouse",
+          "description": "Earthy mushrooms, dark black olives, snappy jalapenos, sweet corn, multi-color capsicum, onions.",
+          "prices_inr": {
+            "regular": 199,
+            "medium": 359,
+            "large": 529
+          }
+        },
+        {
+          "name": "Mix Topping",
+          "description": "Classic trio alignment of crisp diced garden onions, tomatoes, capsicum, and corn kernels.",
+          "prices_inr": {
+            "regular": 149,
+            "medium": 249,
+            "large": 389
+          }
+        },
+        {
+          "name": "Choice of Any Topping Pizza",
+          "description": "Customize your legendary crust by adding your own choice of fresh single or multi-topping selection!",
+          "prices_inr": {
+            "regular": 129,
+            "medium": 229,
+            "large": 389
+          }
+        },
+        {
+          "name": "Margherita",
+          "description": "Aromatic slow-simmered custom herb Italian tomato spread loaded with rich mozzarella layers.",
+          "prices_inr": {
+            "regular": 109,
+            "medium": 229,
+            "large": 359
+          }
+        }
+      ]
+    },
+    {
+      "category_name": "Handcrafted Wheat Burgers",
+      "subtitle": "Crafted using healthy, high-fiber wheat buns!",
+      "items": [
+        {
+          "name": "Chapter One Special Wheat Burger",
+          "badge": "SIG",
+          "price_inr": 149
+        },
+        {
+          "name": "Double Decker Wheat Burger",
+          "badge": "POP",
+          "price_inr": 139
+        },
+        {
+          "name": "Paneer Tikka Wheat Burger",
+          "price_inr": 99
+        },
+        {
+          "name": "Cheese Corn Wheat Burger",
+          "price_inr": 79
+        },
+        {
+          "name": "Aloo Tikki Wheat Burger",
+          "price_inr": 49
+        }
+      ]
+    },
+    {
+      "category_name": "Artisan Subs",
+      "subtitle": "Freshly baked sub rolls",
+      "items": [
+        {
+          "name": "Cheesy Paneer Sub",
+          "badge": "HIGH-T",
+          "price_inr": 149
+        },
+        {
+          "name": "Cheesy American BBQ Sub",
+          "price_inr": 139
+        },
+        {
+          "name": "Potato Chilli Cheese Sub",
+          "price_inr": 99
+        }
+      ]
+    },
+    {
+      "category_name": "Wheat Momos",
+      "subtitle": "8 Pieces per portion",
+      "items": [
+        {
+          "name": "Wheat Kurkure Paneer Momos",
+          "badge": "VIRAL",
+          "price_inr": 179
+        },
+        {
+          "name": "Wheat Paneer Steamed Momos",
+          "price_inr": 139
+        },
+        {
+          "name": "Wheat Veg Kurkure Momos",
+          "price_inr": 139
+        },
+        {
+          "name": "Wheat Veg Steamed Momos",
+          "price_inr": 109
+        }
+      ]
+    },
+    {
+      "category_name": "Italian Pasta Bowls",
+      "items": [
+        {
+          "name": "Alfredo White Sauce Pasta",
+          "price_inr": 139
+        },
+        {
+          "name": "Mama Rosa Mixed Sauce Pasta",
+          "price_inr": 139
+        },
+        {
+          "name": "Arabita Red Sauce Pasta",
+          "price_inr": 129
+        }
+      ]
+    },
+    {
+      "category_name": "Gourmet Sandwiches",
+      "items": [
+        {
+          "name": "Banana Honey Peanut Sandwich",
+          "badge": "ELITE",
+          "price_inr": 130,
+          "description": "Sliced ripe bananas, rich golden honey & creamy gourmet peanut butter toast."
+        },
+        {
+          "name": "Tandoori Paneer Sandwich",
+          "price_inr": 120,
+          "description": "Spiced, flame-grilled cottage cheese fillings squeezed inside crisp buttered toasts."
+        },
+        {
+          "name": "Cheese Corn Sandwich",
+          "price_inr": 99,
+          "description": "Sweet corn kernels bound with molten stretchy string cheese & white pepper."
+        }
+      ]
+    },
+    {
+      "category_name": "Garlic Breads & Pockets",
+      "items": [
+        {
+          "name": "Paneer Garlic Bread",
+          "price_inr": 130
+        },
+        {
+          "name": "Calzone Pocket",
+          "price_inr": 120
+        },
+        {
+          "name": "Exotic Garlic Bread",
+          "price_inr": 120
+        },
+        {
+          "name": "Cheese Garlic Bread",
+          "price_inr": 110
+        },
+        {
+          "name": "Stuffed Garlic Bread",
+          "price_inr": 110
+        }
+      ]
+    },
+    {
+      "category_name": "Delicious Wraps",
+      "items": [
+        {
+          "name": "Tandoori Paneer Wrap",
+          "price_inr": 129
+        },
+        {
+          "name": "Cheese Wrap",
+          "price_inr": 99
+        },
+        {
+          "name": "Veg Wrap",
+          "price_inr": 89
+        },
+        {
+          "name": "Aloo Tikki Wrap",
+          "price_inr": 70
+        }
+      ]
+    },
+    {
+      "category_name": "Artisan Mocktails",
+      "items": [
+        {
+          "name": "Chapter One Signature Mojito",
+          "price_inr": 149
+        },
+        {
+          "name": "Rainbow Fusion Mojito",
+          "price_inr": 129
+        },
+        {
+          "name": "Double Colour Mojito",
+          "price_inr": 119
+        },
+        {
+          "name": "Green Apple Mojito",
+          "price_inr": 99
+        },
+        {
+          "name": "Blue Mojito",
+          "price_inr": 99
+        },
+        {
+          "name": "Blueberry Mint Mojito",
+          "price_inr": 99
+        }
+      ]
+    },
+    {
+      "category_name": "Ice Cream Shakes & Cold Coffees",
+      "items": [
+        {
+          "name": "KitKat Shake",
+          "price_inr": 110
+        },
+        {
+          "name": "Hazelnut Cold Coffee",
+          "price_inr": 110
+        },
+        {
+          "name": "Strawberry Shake",
+          "price_inr": 99
+        },
+        {
+          "name": "Oreo Shake",
+          "price_inr": 99
+        },
+        {
+          "name": "Vanilla Shake",
+          "price_inr": 99
+        },
+        {
+          "name": "Classic Cold Coffee",
+          "price_inr": 99
+        },
+        {
+          "name": "Choco Brownie Sundae",
+          "price_inr": 99
+        },
+        {
+          "name": "Butterscotch Shake",
+          "price_inr": 89
+        }
+      ]
+    },
+    {
+      "category_name": "Crisp Fries & Potato Tornadoes",
+      "items": [
+        {
+          "name": "Cheesy Potato Tornado",
+          "price_inr": 109
+        },
+        {
+          "name": "Chapter One Special Fries",
+          "price_inr": 99
+        },
+        {
+          "name": "Peri Peri Potato Tornado",
+          "price_inr": 89
+        },
+        {
+          "name": "Peri Peri Fries",
+          "price_inr": 79
+        },
+        {
+          "name": "Salted French Fries",
+          "price_inr": 69
+        }
+      ]
+    },
+    {
+      "category_name": "Curated Group Feasts",
+      "items": [
+        {
+          "name": "Birthday Celebration Feast",
+          "price_inr": 1049,
+          "includes": "2 Large Mix Topping Pizzas + 2 Classic Cold Coffees + 2 portions crisp Peri Peri Fries"
+        },
+        {
+          "name": "The Grand Family Box",
+          "price_inr": 449,
+          "includes": "4 Small Tomato Onion Capsicum Corn Pizzas inside a premium bulk family box"
+        },
+        {
+          "name": "Snack Attack Bundle",
+          "price_inr": 239,
+          "includes": "1 Cheese Corn Sandwich + 1 Peri Peri Fries + 1 Shake (Strawberry, Oreo, Vanilla, or Butterscotch)"
+        },
+        {
+          "name": "The Daily Crave Combo",
+          "price_inr": 189,
+          "includes": "1 Regular Pizza + 1 Aloo Tikki Wheat Burger + 1 Mint Mojito & Salted French Fries FREE!"
+        }
+      ]
+    }
+  ]
+}
