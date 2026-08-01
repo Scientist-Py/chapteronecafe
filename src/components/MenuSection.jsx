@@ -37,7 +37,7 @@ export default function MenuSection({ onSelectItem }) {
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gray-200 text-[#B8860B] text-xs font-semibold uppercase tracking-wider mb-2 shadow-xs"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>ZOMATO STYLE DIGITAL MENU</span>
+            <span>OUR GOURMET MENU</span>
           </motion.div>
           
           <motion.h2 
