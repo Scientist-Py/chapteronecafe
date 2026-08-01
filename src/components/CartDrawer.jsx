@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, MapPin, User, Phone, AlertCircle, Sparkles } from 'lucide-react';
+import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, User, Phone, AlertCircle, Volume2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { restaurantInfo } from '../data/menuData';
+import { speakThankYou } from '../utils/speech';
 
 export default function CartDrawer() {
   const {
@@ -28,7 +29,7 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  // Handle WhatsApp Order & Google Sheets Logging
+  // Handle WhatsApp Order & Voice Confirmation & Google Sheets Logging
   const handleCheckout = () => {
     // 1. Validation
     if (!customerName.trim()) {
@@ -44,7 +45,10 @@ export default function CartDrawer() {
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
     const dateFormatted = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
-    // 2. Log order to Google Sheets in background
+    // 2. Play Voice Thank You Confirmation out loud!
+    speakThankYou(customerName.trim());
+
+    // 3. Log order to Google Sheets in background
     const orderPayload = {
       orderId,
       dateFormatted,
@@ -57,7 +61,7 @@ export default function CartDrawer() {
     };
     sendOrderToGoogleSheet(orderPayload);
 
-    // 3. Format CLEAN WhatsApp Message without any corrupted symbols
+    // 4. Format CLEAN WhatsApp Message
     const itemLines = cart.map((ci, idx) => {
       let line = `${idx + 1}. *${ci.name}*`;
       if (ci.sizeName) line += ` (${ci.sizeName})`;
@@ -91,10 +95,13 @@ export default function CartDrawer() {
 
     const whatsappUrl = `https://wa.me/${restaurantInfo.whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
 
-    // 4. Clear cart & Redirect directly to WhatsApp without popup blocker
+    // 5. Clear cart & Redirect directly to WhatsApp with 1.2s buffer for voice playback
     clearCart();
     setIsCartOpen(false);
-    window.location.href = whatsappUrl;
+
+    setTimeout(() => {
+      window.location.href = whatsappUrl;
+    }, 1200);
   };
 
   return (
@@ -240,15 +247,16 @@ export default function CartDrawer() {
                   ))}
                 </div>
 
-                {/* CUSTOMER DETAILS FORM (WITH LIVE TYPING FOCUS & FEEDBACK) */}
+                {/* CUSTOMER DETAILS FORM */}
                 <div className="bg-gradient-to-br from-gray-50 to-amber-50/30 rounded-2xl p-4 border border-gray-200/90 space-y-3 shadow-xs">
                   <div className="flex items-center justify-between">
                     <div className="text-xs font-bold text-[#1D1D1F] uppercase tracking-wider flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5 text-[#B8860B]" />
                       <span>Customer Details</span>
                     </div>
-                    <span className="text-[10px] text-amber-700 font-semibold bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-200">
-                      Required for Order
+                    <span className="text-[10px] text-amber-700 font-semibold bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+                      <Volume2 className="w-3 h-3 text-[#B8860B]" />
+                      <span>Voice Confirmation</span>
                     </span>
                   </div>
 
@@ -259,7 +267,7 @@ export default function CartDrawer() {
                     </div>
                   )}
 
-                  {/* Name Input with Live Focus Highlight */}
+                  {/* Name Input */}
                   <div>
                     <label className="text-[10px] text-secondaryText font-bold uppercase block mb-1 flex items-center justify-between">
                       <span>Full Name *</span>
@@ -272,7 +280,7 @@ export default function CartDrawer() {
                         onChange={(e) => setCustomerName(e.target.value)}
                         onFocus={() => setFocusedField('name')}
                         onBlur={() => setFocusedField(null)}
-                        placeholder="e.g. Tushar Chauhan"
+                        placeholder="e.g. Rajul"
                         className={`w-full px-3.5 py-2.5 rounded-xl bg-white text-xs text-[#1D1D1F] font-medium transition-all shadow-xs ${
                           focusedField === 'name'
                             ? 'border-2 border-[#B8860B] ring-2 ring-[#B8860B]/20 bg-amber-50/30'
@@ -283,7 +291,7 @@ export default function CartDrawer() {
                     </div>
                   </div>
 
-                  {/* Phone Input with Live Focus & Number Preview */}
+                  {/* Phone Input */}
                   <div>
                     <label className="text-[10px] text-secondaryText font-bold uppercase block mb-1 flex items-center justify-between">
                       <span>Phone Number *</span>
