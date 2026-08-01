@@ -10,8 +10,8 @@ export const restaurantInfo = {
   googleMapsUrl: "https://maps.google.com/?q=Chapter+One+Cafe+Baghpat",
   openingHours: "Mon - Sun: 11:00 AM - 11:00 PM",
   instagramUrl: "https://instagram.com",
-  // Google Sheet Webhook URL (Optional: Paste your deployed Apps Script Web App URL here)
-  googleSheetWebhookUrl: "https://script.google.com/macros/s/AKfycbz_placeholder/exec"
+  // Google Sheet Webhook URL for Real-Time Order Logging
+  googleSheetWebhookUrl: "https://script.google.com/macros/s/AKfycbxFQM8VbF2QdlJJmHTbwRCc_9ob7tQyBgqarflx9mLJzfNvnm9O4Tux4vWluLrIY_8t/exec"
 };
 
 export const specialOffers = [
