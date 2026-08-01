@@ -1,11 +1,8 @@
 import React from 'react';
-import { Instagram, MessageCircle, MapPin, Heart, ShieldCheck } from 'lucide-react';
+import { Instagram, MessageCircle, MapPin, Heart } from 'lucide-react';
 import { restaurantInfo } from '../data/menuData';
-import { useCart } from '../context/CartContext';
 
 export default function Footer() {
-  const { setIsAdminOpen } = useCart();
-
   return (
     <footer className="bg-white text-secondaryText border-t border-gray-200 pt-12 pb-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-gray-100">
@@ -56,10 +53,10 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Social & Admin */}
+        {/* Social */}
         <div>
           <h4 className="text-xs font-bold text-[#1D1D1F] font-heading uppercase tracking-wider mb-2.5">
-            Social Links
+            Connect With Us
           </h4>
           <div className="flex items-center gap-2 mb-3">
             <a 
@@ -90,14 +87,6 @@ export default function Footer() {
               <MapPin className="w-4 h-4" />
             </a>
           </div>
-
-          <button
-            onClick={() => setIsAdminOpen(true)}
-            className="mt-2 text-xs font-bold text-[#B8860B] hover:underline flex items-center gap-1"
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Admin Portal</span>
-          </button>
         </div>
 
       </div>

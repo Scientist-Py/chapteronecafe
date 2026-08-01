@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { playAddSound } from '../utils/sound';
+import { restaurantInfo } from '../data/menuData';
 
 const CartContext = createContext();
 
@@ -14,23 +15,12 @@ export function CartProvider({ children }) {
     }
   });
 
-  // Customer info & Table number
-  const [customerName, setCustomerName] = useState(() => localStorage.getItem('chapter_one-[#cname]') || '');
-  const [customerPhone, setCustomerPhone] = useState(() => localStorage.getItem('chapter_one-[#cphone]') || '');
+  // Customer details
+  const [customerName, setCustomerName] = useState(() => localStorage.getItem('chapter_one_cname') || '');
+  const [customerPhone, setCustomerPhone] = useState(() => localStorage.getItem('chapter_one_cphone') || '');
   const [tableNumber, setTableNumber] = useState('');
 
-  // Admin Order History State
-  const [ordersHistory, setOrdersHistory] = useState(() => {
-    try {
-      const savedOrders = localStorage.getItem('chapter_one_admin_orders');
-      return savedOrders ? JSON.parse(savedOrders) : [];
-    } catch (e) {
-      return [];
-    }
-  });
-
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '' });
 
   // Save cart & customer details to localStorage
@@ -42,14 +32,8 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem('chapter_one_admin_orders', JSON.stringify(ordersHistory));
-    } catch (e) {}
-  }, [ordersHistory]);
-
-  useEffect(() => {
-    try {
-      if (customerName) localStorage.setItem('chapter_one-[#cname]', customerName);
-      if (customerPhone) localStorage.setItem('chapter_one-[#cphone]', customerPhone);
+      if (customerName) localStorage.setItem('chapter_one_cname', customerName);
+      if (customerPhone) localStorage.setItem('chapter_one_cphone', customerPhone);
     } catch (e) {}
   }, [customerName, customerPhone]);
 
@@ -135,42 +119,21 @@ export function CartProvider({ children }) {
     setCart([]);
   };
 
-  // LOG NEW ORDER IN ADMIN PANEL
-  const logNewOrder = (locationData = {}) => {
-    const orderId = `ORD-${Date.now().toString().slice(-6)}`;
-    const newOrder = {
-      orderId,
-      timestamp: new Date().toISOString(),
-      dateFormatted: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-      customerName: customerName.trim() || 'Guest Customer',
-      customerPhone: customerPhone.trim() || 'N/A',
-      tableNumber: tableNumber.trim() || 'Direct Order',
-      items: [...cart],
-      totalAmount: cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
-      totalCount: cart.reduce((sum, item) => sum + item.quantity, 0),
-      status: 'Pending',
-      location: locationData,
-    };
-
-    setOrdersHistory((prev) => [newOrder, ...prev]);
-    return newOrder;
-  };
-
-  // Admin Order Status Update
-  const updateOrderStatus = (orderId, status) => {
-    setOrdersHistory((prev) =>
-      prev.map((ord) => (ord.orderId === orderId ? { ...ord, status } : ord))
-    );
-  };
-
-  // Admin Delete Order
-  const deleteOrder = (orderId) => {
-    setOrdersHistory((prev) => prev.filter((ord) => ord.orderId !== orderId));
-  };
-
-  // Admin Clear All Orders
-  const clearAllOrders = () => {
-    setOrdersHistory([]);
+  // POST ORDER TO GOOGLE SHEETS WEBHOOK (Silently in background)
+  const sendOrderToGoogleSheet = async (orderPayload) => {
+    if (!restaurantInfo.googleSheetWebhookUrl || restaurantInfo.googleSheetWebhookUrl.includes('placeholder')) {
+      return;
+    }
+    try {
+      await fetch(restaurantInfo.googleSheetWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        body: JSON.stringify(orderPayload),
+      });
+    } catch (e) {
+      // Ignore background post errors
+    }
   };
 
   // Cart Metrics
@@ -189,8 +152,6 @@ export function CartProvider({ children }) {
         cartSubtotal,
         isCartOpen,
         setIsCartOpen,
-        isAdminOpen,
-        setIsAdminOpen,
         customerName,
         setCustomerName,
         customerPhone,
@@ -198,11 +159,7 @@ export function CartProvider({ children }) {
         tableNumber,
         setTableNumber,
         toast,
-        ordersHistory,
-        logNewOrder,
-        updateOrderStatus,
-        deleteOrder,
-        clearAllOrders,
+        sendOrderToGoogleSheet,
       }}
     >
       {children}

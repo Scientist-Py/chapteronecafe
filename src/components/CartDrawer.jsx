@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, MapPin, User, Phone, AlertCircle } from 'lucide-react';
+import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, MapPin, User, Phone, AlertCircle, Sparkles } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { restaurantInfo } from '../data/menuData';
-import { getUserLocation } from '../utils/location';
 
 export default function CartDrawer() {
   const {
@@ -21,16 +20,16 @@ export default function CartDrawer() {
     setCustomerPhone,
     tableNumber,
     setTableNumber,
-    logNewOrder,
+    sendOrderToGoogleSheet,
   } = useCart();
 
   const [formError, setFormError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
 
   if (!isCartOpen) return null;
 
-  // Handle WhatsApp Checkout with Location Capture & Secret Admin Order Logging
-  const handleCheckout = async () => {
+  // Handle WhatsApp Order & Google Sheets Logging
+  const handleCheckout = () => {
     // 1. Validation
     if (!customerName.trim()) {
       setFormError('Please enter your Name');
@@ -41,15 +40,24 @@ export default function CartDrawer() {
       return;
     }
     setFormError('');
-    setIsSubmitting(true);
 
-    // 2. Capture GPS Location silently
-    const locationData = await getUserLocation();
+    const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+    const dateFormatted = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
-    // 3. Log order into Admin Panel
-    const loggedOrder = logNewOrder(locationData);
+    // 2. Log order to Google Sheets in background
+    const orderPayload = {
+      orderId,
+      dateFormatted,
+      customerName: customerName.trim(),
+      customerPhone: customerPhone.trim(),
+      tableNumber: tableNumber.trim() || 'Direct Order',
+      items: cart,
+      totalCount: totalItemCount,
+      totalAmount: cartSubtotal,
+    };
+    sendOrderToGoogleSheet(orderPayload);
 
-    // 4. Format WhatsApp Message
+    // 3. Format CLEAN WhatsApp Message without any corrupted symbols
     const itemLines = cart.map((ci, idx) => {
       let line = `${idx + 1}. *${ci.name}*`;
       if (ci.sizeName) line += ` (${ci.sizeName})`;
@@ -65,16 +73,13 @@ export default function CartDrawer() {
       return line;
     });
 
-    const locationText = locationData.available
-      ? `\n📍 *Exact Location:* ${locationData.mapsLink}`
-      : '';
+    const tableStr = tableNumber.trim() ? `📍 *Table / Note:* ${tableNumber.trim()}\n` : '';
 
     const whatsappText = [
-      `👋 *CHAPTER ONE CAFE ORDER (${loggedOrder.orderId})*`,
+      `👋 *CHAPTER ONE CAFE ORDER* (${orderId})`,
       `👤 *Name:* ${customerName.trim()}`,
       `📞 *Phone:* ${customerPhone.trim()}`,
-      tableNumber.trim() ? `📍 *Table / Note:* ${tableNumber.trim()}` : null,
-      locationText ? locationText.trim() : null,
+      tableStr ? tableStr.trim() : null,
       ``,
       `📋 *ORDERED ITEMS (${totalItemCount}):*`,
       itemLines.join('\n\n'),
@@ -86,12 +91,10 @@ export default function CartDrawer() {
 
     const whatsappUrl = `https://wa.me/${restaurantInfo.whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
 
-    setIsSubmitting(false);
-
-    // 5. Open WhatsApp & clear cart
-    window.open(whatsappUrl, '_blank');
+    // 4. Clear cart & Redirect directly to WhatsApp without popup blocker
     clearCart();
     setIsCartOpen(false);
+    window.location.href = whatsappUrl;
   };
 
   return (
@@ -237,11 +240,16 @@ export default function CartDrawer() {
                   ))}
                 </div>
 
-                {/* CUSTOMER DETAILS FORM (NAME & PHONE REQUIRED) */}
-                <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200/80 space-y-3">
-                  <div className="text-xs font-bold text-[#1D1D1F] uppercase tracking-wider flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-[#B8860B]" />
-                    <span>Customer Details (Required)</span>
+                {/* CUSTOMER DETAILS FORM (WITH LIVE TYPING FOCUS & FEEDBACK) */}
+                <div className="bg-gradient-to-br from-gray-50 to-amber-50/30 rounded-2xl p-4 border border-gray-200/90 space-y-3 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-bold text-[#1D1D1F] uppercase tracking-wider flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-[#B8860B]" />
+                      <span>Customer Details</span>
+                    </div>
+                    <span className="text-[10px] text-amber-700 font-semibold bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-200">
+                      Required for Order
+                    </span>
                   </div>
 
                   {formError && (
@@ -251,36 +259,60 @@ export default function CartDrawer() {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <div>
-                      <label className="text-[10px] text-secondaryText font-bold uppercase block mb-1">
-                        Full Name *
-                      </label>
+                  {/* Name Input with Live Focus Highlight */}
+                  <div>
+                    <label className="text-[10px] text-secondaryText font-bold uppercase block mb-1 flex items-center justify-between">
+                      <span>Full Name *</span>
+                      {customerName && <span className="text-green-700 font-semibold lowercase">✓ typed</span>}
+                    </label>
+                    <div className="relative">
                       <input
                         type="text"
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        placeholder="Your Name"
-                        className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs text-[#1D1D1F] focus:outline-none focus:border-[#B8860B]"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[10px] text-secondaryText font-bold uppercase block mb-1">
-                        Phone Number *
-                      </label>
-                      <input
-                        type="tel"
-                        value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
-                        placeholder="10-digit Phone"
-                        className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs text-[#1D1D1F] focus:outline-none focus:border-[#B8860B]"
+                        onFocus={() => setFocusedField('name')}
+                        onBlur={() => setFocusedField(null)}
+                        placeholder="e.g. Tushar Chauhan"
+                        className={`w-full px-3.5 py-2.5 rounded-xl bg-white text-xs text-[#1D1D1F] font-medium transition-all shadow-xs ${
+                          focusedField === 'name'
+                            ? 'border-2 border-[#B8860B] ring-2 ring-[#B8860B]/20 bg-amber-50/30'
+                            : 'border border-gray-200'
+                        }`}
                         required
                       />
                     </div>
                   </div>
 
+                  {/* Phone Input with Live Focus & Number Preview */}
+                  <div>
+                    <label className="text-[10px] text-secondaryText font-bold uppercase block mb-1 flex items-center justify-between">
+                      <span>Phone Number *</span>
+                      {customerPhone && (
+                        <span className="text-[#B8860B] font-bold">
+                          Live: {customerPhone}
+                        </span>
+                      )}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        onFocus={() => setFocusedField('phone')}
+                        onBlur={() => setFocusedField(null)}
+                        placeholder="e.g. 9758781006"
+                        className={`w-full px-3.5 py-2.5 rounded-xl bg-white text-xs text-[#1D1D1F] font-bold tracking-wide transition-all shadow-xs ${
+                          focusedField === 'phone'
+                            ? 'border-2 border-[#B8860B] ring-2 ring-[#B8860B]/20 bg-amber-50/30 text-[#1D1D1F]'
+                            : 'border border-gray-200'
+                        }`}
+                        maxLength={10}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Table / Note Input */}
                   <div>
                     <label className="text-[10px] text-secondaryText font-bold uppercase block mb-1">
                       Table No. / Note (Optional)
@@ -289,7 +321,7 @@ export default function CartDrawer() {
                       type="text"
                       value={tableNumber}
                       onChange={(e) => setTableNumber(e.target.value)}
-                      placeholder="e.g. Table 4 or Takeaway"
+                      placeholder="e.g. Table 4 or Dine-in"
                       className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs text-[#1D1D1F] focus:outline-none focus:border-[#B8860B]"
                     />
                   </div>
@@ -325,11 +357,10 @@ export default function CartDrawer() {
 
               <button
                 onClick={handleCheckout}
-                disabled={isSubmitting}
-                className="flex-1 py-3.5 px-4 rounded-xl font-bold bg-green-600 hover:bg-green-500 text-white flex items-center justify-center gap-2 text-xs sm:text-sm shadow-md active:scale-98 disabled:opacity-50 transition-all"
+                className="flex-1 py-3.5 px-4 rounded-xl font-bold bg-green-600 hover:bg-green-500 text-white flex items-center justify-center gap-2 text-xs sm:text-sm shadow-md active:scale-98 transition-all"
               >
                 <MessageCircle className="w-4.5 h-4.5" />
-                <span>{isSubmitting ? 'Locating & Processing...' : 'Place Order on WhatsApp'}</span>
+                <span>Place Order on WhatsApp</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

@@ -7,7 +7,6 @@ import Hero from './components/Hero';
 import MenuSection from './components/MenuSection';
 import FoodModal from './components/FoodModal';
 import CartDrawer from './components/CartDrawer';
-import AdminPanel from './components/AdminPanel';
 import FloatingCartBar from './components/FloatingCartBar';
 import ToastNotification from './components/ToastNotification';
 import AboutSection from './components/AboutSection';
@@ -22,7 +21,7 @@ export default function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000);
+    }, 800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -60,9 +59,6 @@ export default function App() {
 
             {/* Multi-Item Cart Drawer */}
             <CartDrawer />
-
-            {/* Admin Order Logging & GPS Panel */}
-            <AdminPanel />
           </>
         )}
 
