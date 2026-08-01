@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, User, Phone, AlertCircle, Volume2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { restaurantInfo } from '../data/menuData';
-import { speakThankYou } from '../utils/speech';
+import { speakThankYouAndRedirect } from '../utils/speech';
 
 export default function CartDrawer() {
   const {
@@ -29,7 +29,7 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  // Handle WhatsApp Order & Impressive Voice Confirmation & Google Sheets Logging
+  // Handle WhatsApp Order & Energetic Female Voice Confirmation & Google Sheets Logging
   const handleCheckout = () => {
     // 1. Validation
     if (!customerName.trim()) {
@@ -45,10 +45,7 @@ export default function CartDrawer() {
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
     const dateFormatted = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
-    // 2. Play Impressive Voice Confirmation out loud!
-    speakThankYou(customerName.trim());
-
-    // 3. Log order to Google Sheets in background
+    // 2. Log order to Google Sheets in background
     const orderPayload = {
       orderId,
       dateFormatted,
@@ -61,7 +58,7 @@ export default function CartDrawer() {
     };
     sendOrderToGoogleSheet(orderPayload);
 
-    // 4. Format CLEAN WhatsApp Message
+    // 3. Format CLEAN WhatsApp Message
     const itemLines = cart.map((ci, idx) => {
       let line = `${idx + 1}. *${ci.name}*`;
       if (ci.sizeName) line += ` (${ci.sizeName})`;
@@ -95,13 +92,12 @@ export default function CartDrawer() {
 
     const whatsappUrl = `https://wa.me/${restaurantInfo.whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
 
-    // 5. Clear cart & Redirect to WhatsApp with 1.8s buffer for impressive voice playback
+    // 4. Clear cart & Close drawer
     clearCart();
     setIsCartOpen(false);
 
-    setTimeout(() => {
-      window.location.href = whatsappUrl;
-    }, 1800);
+    // 5. Play energetic female voice confirmation FIRST, then open WhatsApp when finished!
+    speakThankYouAndRedirect(customerName.trim(), whatsappUrl);
   };
 
   return (
@@ -256,7 +252,7 @@ export default function CartDrawer() {
                     </div>
                     <span className="text-[10px] text-amber-700 font-semibold bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
                       <Volume2 className="w-3 h-3 text-[#B8860B]" />
-                      <span>Executive Voice</span>
+                      <span>Female Voice</span>
                     </span>
                   </div>
 
