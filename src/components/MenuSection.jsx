@@ -7,6 +7,18 @@ export default function MenuSection({ onSelectItem }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Handle category change with smooth scroll to top of menu
+  const handleCategorySelect = (catId) => {
+    setActiveCategory(catId);
+    
+    const menuEl = document.getElementById('menu');
+    if (menuEl) {
+      const yOffset = -75; // Account for fixed navbar height
+      const y = menuEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    }
+  };
+
   // Filtering Logic
   const filteredItems = useMemo(() => {
     return menuItemsData.filter((item) => {
@@ -75,14 +87,14 @@ export default function MenuSection({ onSelectItem }) {
             )}
           </div>
 
-          {/* Category Filter Pills (Zomato Style Horizontally Scrollable) */}
+          {/* Category Filter Pills (Horizontally Scrollable) */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
             {menuCategoriesList.map((cat) => {
               const isActive = activeCategory === cat.id;
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
+                  onClick={() => handleCategorySelect(cat.id)}
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 whitespace-nowrap active:scale-95 ${
                     isActive
                       ? 'bg-[#1D1D1F] text-white shadow-sm font-bold'
@@ -98,118 +110,103 @@ export default function MenuSection({ onSelectItem }) {
 
         </div>
 
-        {/* Counter */}
-        <div className="flex items-center justify-between mb-4 text-xs text-secondaryText px-1">
-          <div>
-            Showing <span className="text-[#1D1D1F] font-bold">{filteredItems.length}</span> delicacies
-          </div>
-          <div className="text-[11px] text-gray-400">
-            Tap item or button to select sizes
-          </div>
-        </div>
-
-        {/* ZOMATO STYLE LIST ITEMS */}
-        {filteredItems.length === 0 ? (
-          <div className="py-14 text-center bg-white rounded-2xl p-6 max-w-xs mx-auto border border-gray-200 shadow-xs">
-            <Utensils className="w-8 h-8 text-[#B8860B] mx-auto mb-2 opacity-60" />
-            <h3 className="text-sm font-bold text-[#1D1D1F] mb-1">No Items Found</h3>
-            <p className="text-xs text-secondaryText mb-4">
-              Try searching for "pizza", "burger", or "shake".
-            </p>
-            <button
-              onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
-              className="px-4 py-1.5 rounded-full bg-gray-100 text-[#1D1D1F] text-xs font-semibold"
-            >
-              Reset Filters
-            </button>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-light-card divide-y divide-gray-100 overflow-hidden">
-            <AnimatePresence>
-              {filteredItems.map((item) => (
+        {/* LIST ITEMS */}
+        <div className="space-y-3.5">
+          <AnimatePresence mode="popLayout">
+            {filteredItems.length === 0 ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center py-12 bg-white rounded-2xl border border-gray-200 p-6"
+              >
+                <Utensils className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                <h3 className="text-sm font-bold text-[#1D1D1F]">No Dishes Found</h3>
+                <p className="text-xs text-secondaryText mt-1">Try adjusting your search query or select another category.</p>
+              </motion.div>
+            ) : (
+              filteredItems.map((item) => (
                 <motion.div
-                  layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
                   key={item.id}
-                  onClick={() => onSelectItem(item)}
-                  className="p-4 sm:p-5 hover:bg-gray-50/80 transition-colors cursor-pointer flex items-start justify-between gap-4 group"
+                  layout
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.25 }}
+                  className="bg-white rounded-2xl border border-gray-200/90 p-3.5 sm:p-4 shadow-apple-light hover:border-[#B8860B]/40 transition-all group flex items-center justify-between gap-3 sm:gap-4 relative overflow-hidden"
                 >
-                  {/* Left Column: Veg Dot, Title, Price, Description, Size Badge */}
-                  <div className="flex-1 min-w-0 pr-2">
+                  {/* Left Column: Details */}
+                  <div className="flex-1 min-w-0 pr-1">
                     
-                    {/* Top row: Veg symbol & Badges */}
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-4 h-4 rounded-[3px] border border-green-600 flex items-center justify-center p-[2px]">
-                        <div className="w-2 h-2 rounded-full bg-green-600"></div>
+                    {/* Category & Badge */}
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <div className="w-3.5 h-3.5 rounded-sm border border-green-600 flex items-center justify-center p-0.5" title="Pure Veg">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
                       </div>
+
                       {item.badge && (
-                        <span className="px-2 py-0.5 rounded-md bg-amber-50 text-[9px] font-extrabold text-[#B8860B] border border-amber-200/80 uppercase">
+                        <span className="px-2 py-0.5 rounded-md bg-amber-50 text-[#B8860B] border border-amber-200 text-[9px] font-bold uppercase tracking-wider">
                           {item.badge}
                         </span>
                       )}
                     </div>
 
-                    {/* Item Name */}
-                    <h3 className="text-base font-bold text-[#1D1D1F] group-hover:text-[#B8860B] transition-colors leading-snug font-heading mb-1">
+                    {/* Title */}
+                    <h3 className="text-sm sm:text-base font-bold text-[#1D1D1F] font-heading group-hover:text-[#B8860B] transition-colors leading-tight">
                       {item.name}
                     </h3>
 
-                    {/* Price & Size Option Tag */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-extrabold text-[#1D1D1F]">
-                        {item.displayPrice || `₹${item.price}`}
-                      </span>
+                    {/* Price */}
+                    <div className="text-xs font-extrabold text-[#1D1D1F] mt-1 flex items-center gap-1.5">
+                      <span>{item.displayPrice}</span>
                       {item.hasSizes && (
-                        <span className="text-[10px] font-medium text-[#B8860B] bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-full">
-                          Customizable (Reg / Med / Lrg)
+                        <span className="text-[10px] text-[#B8860B] font-semibold bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                          Options
                         </span>
                       )}
                     </div>
 
-                    {/* Short Description */}
-                    <p className="text-xs text-secondaryText line-clamp-2 leading-relaxed">
+                    {/* Description */}
+                    <p className="text-[11px] sm:text-xs text-secondaryText leading-relaxed mt-1 line-clamp-2">
                       {item.description}
                     </p>
-
                   </div>
 
-                  {/* Right Column: Image with Floating Zomato Style ADD Button */}
-                  <div className="relative flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-b from-gray-100 to-gray-50 flex flex-col items-center justify-center text-center p-2">
-                        <Utensils className="w-6 h-6 text-[#B8860B] mb-1" />
-                        <span className="text-[9px] font-medium text-gray-400">Chef Special</span>
-                      </div>
-                    )}
+                  {/* Right Column: Image with Floating ADD Button */}
+                  <div className="relative flex-shrink-0">
+                    <div 
+                      onClick={() => onSelectItem(item)}
+                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 shadow-xs cursor-pointer group-hover:scale-102 transition-transform"
+                    >
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
+                          <Utensils className="w-6 h-6" />
+                        </div>
+                      )}
+                    </div>
 
-                    {/* Floating Zomato Style ADD / SELECT Button */}
+                    {/* Floating ADD / SELECT Button */}
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectItem(item);
-                      }}
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-lg bg-white border border-gray-300 text-green-700 font-extrabold text-xs shadow-md hover:bg-green-50 active:scale-95 transition-all flex items-center gap-1 uppercase tracking-wider"
+                      onClick={() => onSelectItem(item)}
+                      className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-lg bg-white border border-gray-300 text-green-700 font-extrabold text-xs shadow-md hover:bg-green-600 hover:text-white hover:border-green-600 transition-all flex items-center gap-1 active:scale-95 whitespace-nowrap z-10"
                     >
                       <span>ADD</span>
-                      <Plus className="w-3.5 h-3.5 text-green-700" />
+                      <Plus className="w-3 h-3 stroke-[3]" />
                     </button>
                   </div>
 
                 </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
+              ))
+            )}
+          </AnimatePresence>
+        </div>
 
       </div>
     </section>

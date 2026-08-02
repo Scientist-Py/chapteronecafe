@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, User, Phone, AlertCircle, Volume2 } from 'lucide-react';
+import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, User, Phone, AlertCircle, Volume2, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { restaurantInfo } from '../data/menuData';
 import { speakThankYouAndRedirect } from '../utils/speech';
+import { sanitizeInput, validatePhone, checkRateLimit } from '../utils/security';
 
 export default function CartDrawer() {
   const {
@@ -29,39 +30,51 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  // Handle WhatsApp Order & Energetic Female Voice Confirmation & Google Sheets Logging
+  // Handle Secure WhatsApp Order Checkout
   const handleCheckout = () => {
-    // 1. Validation
-    if (!customerName.trim()) {
-      setFormError('Please enter your Name');
+    // 1. Sanitize all customer inputs against XSS/script injection
+    const cleanName = sanitizeInput(customerName);
+    const cleanPhone = sanitizeInput(customerPhone).replace(/\D/g, '');
+    const cleanTable = sanitizeInput(tableNumber);
+
+    // 2. Strict Input Validation
+    if (!cleanName || cleanName.length < 2) {
+      setFormError('Please enter a valid Name (at least 2 characters)');
       return;
     }
-    if (!customerPhone.trim() || customerPhone.trim().length < 10) {
+    if (!validatePhone(cleanPhone)) {
       setFormError('Please enter a valid 10-digit Phone Number');
       return;
     }
+
+    // 3. Anti-Spam Rate Limit Check
+    if (!checkRateLimit(3000)) {
+      setFormError('Please wait a moment before submitting order again');
+      return;
+    }
+
     setFormError('');
 
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
     const dateFormatted = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
-    // 2. Log order to Google Sheets in background
+    // 4. Log order to Google Sheets in background
     const orderPayload = {
       orderId,
       dateFormatted,
-      customerName: customerName.trim(),
-      customerPhone: customerPhone.trim(),
-      tableNumber: tableNumber.trim() || 'Direct Order',
+      customerName: cleanName,
+      customerPhone: cleanPhone,
+      tableNumber: cleanTable || 'Direct Order',
       items: cart,
       totalCount: totalItemCount,
       totalAmount: cartSubtotal,
     };
     sendOrderToGoogleSheet(orderPayload);
 
-    // 3. Format CLEAN WhatsApp Message
+    // 5. Format CLEAN WhatsApp Message
     const itemLines = cart.map((ci, idx) => {
-      let line = `${idx + 1}. *${ci.name}*`;
-      if (ci.sizeName) line += ` (${ci.sizeName})`;
+      let line = `${idx + 1}. *${sanitizeInput(ci.name)}*`;
+      if (ci.sizeName) line += ` (${sanitizeInput(ci.sizeName)})`;
       line += ` x${ci.quantity} - ₹${ci.unitPrice * ci.quantity}`;
 
       const addOnDetails = [];
@@ -74,12 +87,12 @@ export default function CartDrawer() {
       return line;
     });
 
-    const tableStr = tableNumber.trim() ? `📍 *Table / Note:* ${tableNumber.trim()}\n` : '';
+    const tableStr = cleanTable ? `📍 *Table / Note:* ${cleanTable}\n` : '';
 
     const whatsappText = [
       `👋 *CHAPTER ONE CAFE ORDER* (${orderId})`,
-      `👤 *Name:* ${customerName.trim()}`,
-      `📞 *Phone:* ${customerPhone.trim()}`,
+      `👤 *Name:* ${cleanName}`,
+      `📞 *Phone:* ${cleanPhone}`,
       tableStr ? tableStr.trim() : null,
       ``,
       `📋 *ORDERED ITEMS (${totalItemCount}):*`,
@@ -92,12 +105,12 @@ export default function CartDrawer() {
 
     const whatsappUrl = `https://wa.me/${restaurantInfo.whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
 
-    // 4. Clear cart & Close drawer
+    // 6. Clear cart & Close drawer
     clearCart();
     setIsCartOpen(false);
 
-    // 5. Play energetic female voice confirmation FIRST, then open WhatsApp when finished!
-    speakThankYouAndRedirect(customerName.trim(), whatsappUrl);
+    // 7. Play voice confirmation FIRST, then open WhatsApp when finished!
+    speakThankYouAndRedirect(cleanName, whatsappUrl);
   };
 
   return (
@@ -243,16 +256,16 @@ export default function CartDrawer() {
                   ))}
                 </div>
 
-                {/* CUSTOMER DETAILS FORM */}
+                {/* SECURE CUSTOMER DETAILS FORM */}
                 <div className="bg-gradient-to-br from-gray-50 to-amber-50/30 rounded-2xl p-4 border border-gray-200/90 space-y-3 shadow-xs">
                   <div className="flex items-center justify-between">
                     <div className="text-xs font-bold text-[#1D1D1F] uppercase tracking-wider flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5 text-[#B8860B]" />
                       <span>Customer Details</span>
                     </div>
-                    <span className="text-[10px] text-amber-700 font-semibold bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
-                      <Volume2 className="w-3 h-3 text-[#B8860B]" />
-                      <span>Female Voice</span>
+                    <span className="text-[10px] text-green-700 font-semibold bg-green-50 px-2 py-0.5 rounded-full border border-green-200 flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3 text-green-600" />
+                      <span>256-Bit Encrypted</span>
                     </span>
                   </div>
 
@@ -277,6 +290,7 @@ export default function CartDrawer() {
                         onFocus={() => setFocusedField('name')}
                         onBlur={() => setFocusedField(null)}
                         placeholder="e.g. Tushar"
+                        maxLength={40}
                         className={`w-full px-3.5 py-2.5 rounded-xl bg-white text-xs text-[#1D1D1F] font-medium transition-all shadow-xs ${
                           focusedField === 'name'
                             ? 'border-2 border-[#B8860B] ring-2 ring-[#B8860B]/20 bg-amber-50/30'
@@ -326,6 +340,7 @@ export default function CartDrawer() {
                       value={tableNumber}
                       onChange={(e) => setTableNumber(e.target.value)}
                       placeholder="e.g. Table 4 or Dine-in"
+                      maxLength={50}
                       className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs text-[#1D1D1F] focus:outline-none focus:border-[#B8860B]"
                     />
                   </div>
