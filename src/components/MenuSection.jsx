@@ -184,6 +184,7 @@ export default function MenuSection({ onSelectItem }) {
                           alt={item.name}
                           className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-300"
                           loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">

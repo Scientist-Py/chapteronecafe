@@ -215,7 +215,7 @@ export const menuItemsData = [
     displayPrice: "₹79",
     hasSizes: false,
     description: "Golden sweet corn patty smothered with rich stringy cheese sauce inside a toasted wheat bun.",
-    image: "/food/cheese corn sandwich.png",
+    image: "/food/cheese corn burger.png",
     badge: null,
     isVeg: true,
   },

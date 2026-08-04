@@ -78,14 +78,27 @@ export default function FoodModal({ item, onClose }) {
           </button>
 
           <div className="overflow-y-auto">
-            {/* Header Image */}
-            <div className="relative h-48 sm:h-56 w-full bg-gray-100 overflow-hidden">
+            {/* Header Image Container (Full Uncropped Image View) */}
+            <div className="relative h-60 sm:h-72 w-full bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center overflow-hidden p-3">
               {item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  {/* Subtle Ambient Blurred Background */}
+                  <img
+                    src={item.image}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-110 pointer-events-none"
+                    loading="eager"
+                    decoding="async"
+                  />
+                  {/* Full 100% Uncropped Food Image */}
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="relative z-10 max-h-full max-w-full object-contain drop-shadow-2xl rounded-xl"
+                    loading="eager"
+                    decoding="async"
+                  />
+                </>
               ) : (
                 <div className="w-full h-full bg-gradient-to-b from-gray-100 to-gray-50 flex flex-col items-center justify-center text-center p-5">
                   <Utensils className="w-8 h-8 text-[#B8860B] mb-1" />
@@ -94,7 +107,7 @@ export default function FoodModal({ item, onClose }) {
               )}
 
               {/* Veg Indicator */}
-              <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 border border-green-600/40 text-green-700 text-[10px] font-bold flex items-center gap-1 shadow-xs">
+              <div className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full bg-white/95 border border-green-600/40 text-green-700 text-[10px] font-bold flex items-center gap-1 shadow-xs">
                 <CheckCircle2 className="w-3 h-3 text-green-600" />
                 <span>Pure Vegetarian</span>
               </div>
