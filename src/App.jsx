@@ -4,9 +4,11 @@ import { CartProvider } from './context/CartContext';
 import Preloader from './components/Preloader';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import OffersSection from './components/OffersSection';
 import MenuSection from './components/MenuSection';
 import FoodModal from './components/FoodModal';
 import CartDrawer from './components/CartDrawer';
+import MondayPizzaModal from './components/MondayPizzaModal';
 import FloatingCartBar from './components/FloatingCartBar';
 import ToastNotification from './components/ToastNotification';
 import ReviewBanner from './components/ReviewBanner';
@@ -43,6 +45,7 @@ export default function App() {
             <ReviewBanner />
             <main>
               <Hero />
+              <OffersSection />
               <MenuSection onSelectItem={(item) => setSelectedFood(item)} />
               <AboutSection />
               <ContactSection />
@@ -61,6 +64,9 @@ export default function App() {
 
             {/* Multi-Item Cart Drawer */}
             <CartDrawer />
+
+            {/* Monday Free Pizza Selection Modal */}
+            <MondayPizzaModal />
           </>
         )}
 
