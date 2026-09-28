@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, User, Phone, AlertCircle, Volume2, ShieldCheck, Gift, Tag, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, User, Phone, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { restaurantInfo } from '../data/menuData';
 import { speakThankYouAndRedirect } from '../utils/speech';
@@ -9,16 +9,11 @@ import { sanitizeInput, validatePhone, checkRateLimit } from '../utils/security'
 export default function CartDrawer() {
   const {
     cart,
-    addToCart,
-    claimFreePromoItem,
     updateQuantity,
     removeFromCart,
     clearCart,
     totalItemCount,
-    promoEval,
-    applyLoyalty,
-    setApplyLoyalty,
-    setIsMondayPizzaModalOpen,
+    cartSubtotal,
     isCartOpen,
     setIsCartOpen,
     customerName,
@@ -63,16 +58,11 @@ export default function CartDrawer() {
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
     const dateFormatted = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
-    // 4. Format Itemized WhatsApp Message with Free Items & Discounts
+    // 4. Format Itemized WhatsApp Message
     const itemLines = cart.map((ci, idx) => {
       let line = `${idx + 1}. *${sanitizeInput(ci.name)}*`;
       if (ci.sizeName) line += ` (${sanitizeInput(ci.sizeName)})`;
-
-      if (ci.isFreePromo) {
-        line += ` x${ci.quantity} - *FREE (${ci.promoLabel || 'Offer'})* [Regular ₹${ci.originalPrice}]`;
-      } else {
-        line += ` x${ci.quantity} - ₹${ci.unitPrice * ci.quantity}`;
-      }
+      line += ` x${ci.quantity} - ₹${ci.unitPrice * ci.quantity}`;
 
       const addOnDetails = [];
       if (ci.stuffedCrust) addOnDetails.push(`   + Cheese Stuffed Crust (+₹${ci.crustPrice})`);
@@ -85,9 +75,6 @@ export default function CartDrawer() {
     });
 
     const tableStr = cleanTable ? `📍 *Table / Note:* ${cleanTable}\n` : '';
-    const loyaltyStr = promoEval.loyaltyDiscountAmount > 0
-      ? `\n🎉 *12% Loyalty Discount Applied:* -₹${promoEval.loyaltyDiscountAmount}`
-      : '';
 
     const whatsappText = [
       `👋 *CHAPTER ONE CAFE ORDER* (${orderId})`,
@@ -97,9 +84,8 @@ export default function CartDrawer() {
       ``,
       `📋 *ORDERED ITEMS (${totalItemCount}):*`,
       itemLines.join('\n\n'),
-      loyaltyStr ? loyaltyStr.trim() : null,
       `-----------------------------`,
-      `💰 *FINAL PAYABLE TOTAL: ₹${promoEval.grandTotal}*`,
+      `💰 *TOTAL AMOUNT: ₹${cartSubtotal}*`,
       `-----------------------------`,
       `Please confirm & prepare our order!`
     ].filter(Boolean).join('\n');
@@ -115,9 +101,7 @@ export default function CartDrawer() {
       tableNumber: cleanTable || 'Direct Order',
       items: cart,
       totalCount: totalItemCount,
-      paidSubtotal: promoEval.paidSubtotal,
-      loyaltyDiscount: promoEval.loyaltyDiscountAmount,
-      totalAmount: promoEval.grandTotal,
+      totalAmount: cartSubtotal,
     };
     sendOrderToGoogleSheet(orderPayload);
 
@@ -204,134 +188,10 @@ export default function CartDrawer() {
               </div>
             ) : (
               <>
-                {/* LIVE SMART PROMOTION PROGRESS & UNLOCKED CARDS */}
-                <div className="space-y-2">
-                  
-                  {/* Monday Special Unlocked Banner */}
-                  {promoEval.isMonday && (
-                    <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 to-amber-50 border border-amber-300 text-xs flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base">🍕</span>
-                        <div>
-                          <div className="font-extrabold text-[#1D1D1F]">Monday Offer</div>
-                          <div className="text-[11px] text-secondaryText">
-                            {promoEval.hasFreeMondayPizzaInCart
-                              ? 'Free Medium Pizza Claimed!'
-                              : promoEval.isMondayQualified
-                              ? '🎉 Free Medium Pizza Unlocked!'
-                              : 'Add 1 Large Pizza to get 1 Medium FREE'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {promoEval.isMondayQualified && !promoEval.hasFreeMondayPizzaInCart && (
-                        <button
-                          onClick={() => setIsMondayPizzaModalOpen(true)}
-                          className="px-3 py-1.5 rounded-xl bg-amber-500 text-white text-[10px] font-extrabold shadow-xs hover:bg-amber-600 transition-all flex items-center gap-1"
-                        >
-                          <span>Choose Free Pizza</span>
-                          <ArrowRight className="w-3 h-3" />
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Smart "₹X Away" Banner & Progress Indicator */}
-                  {promoEval.primaryOffer && (
-                    <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/90 text-xs space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="font-bold text-[#1D1D1F] flex items-center gap-1.5">
-                          <Gift className="w-4 h-4 text-[#B8860B]" />
-                          <span>{promoEval.primaryOffer.message}</span>
-                        </div>
-                        <span className="text-[10px] font-extrabold text-[#B8860B] bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
-                          ₹{promoEval.paidSubtotal} / ₹{promoEval.primaryOffer.threshold}
-                        </span>
-                      </div>
-
-                      {/* Live Progress Bar */}
-                      <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-amber-200/80">
-                        <div
-                          className="h-full bg-[#B8860B] rounded-full transition-all duration-300"
-                          style={{ width: `${Math.min(100, promoEval.primaryOffer.progress * 100)}%` }}
-                        />
-                      </div>
-
-                      {/* SMART PRODUCT SUGGESTIONS (Add something for ₹X+) */}
-                      {promoEval.smartSuggestions.length > 0 && (
-                        <div className="pt-2 border-t border-amber-200/60 space-y-1.5">
-                          <div className="text-[10px] font-extrabold uppercase text-[#1D1D1F]">
-                            Add something for ₹{promoEval.primaryOffer.needed}+ to unlock:
-                          </div>
-                          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                            {promoEval.smartSuggestions.map((item) => (
-                              <button
-                                key={item.id}
-                                onClick={() => addToCart(item)}
-                                className="flex items-center gap-1.5 p-1.5 pr-2.5 rounded-xl bg-white border border-amber-200 shadow-xs hover:border-[#B8860B] transition-all flex-shrink-0 active:scale-95"
-                              >
-                                <img src={item.image} alt={item.name} className="w-6 h-6 rounded-lg object-cover" />
-                                <div className="text-left">
-                                  <div className="text-[10px] font-bold text-[#1D1D1F] line-clamp-1">{item.name}</div>
-                                  <div className="text-[9px] font-extrabold text-[#B8860B]">₹{item.price}</div>
-                                </div>
-                                <span className="text-[10px] font-extrabold text-green-700 bg-green-50 px-1.5 py-0.2 rounded border border-green-200 ml-1">
-                                  + Add
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Claim Free Mojito Button */}
-                  {promoEval.mojitoUnlocked && !promoEval.hasFreeMojitoInCart && (
-                    <div className="p-3 rounded-2xl bg-green-50 border border-green-200 text-xs flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base">🍏</span>
-                        <div>
-                          <div className="font-extrabold text-green-900">Offer Unlocked!</div>
-                          <div className="text-[11px] text-green-700">FREE Green Apple Mojito</div>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => claimFreePromoItem('MOJITO_399')}
-                        className="px-3 py-1.5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-[10px] font-extrabold shadow-xs transition-all flex items-center gap-1"
-                      >
-                        <Gift className="w-3.5 h-3.5" />
-                        <span>Add Free Mojito</span>
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Claim Free Coffee Button */}
-                  {promoEval.coffeeUnlocked && !promoEval.hasFreeCoffeeInCart && (
-                    <div className="p-3 rounded-2xl bg-green-50 border border-green-200 text-xs flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base">☕</span>
-                        <div>
-                          <div className="font-extrabold text-green-900">Offer Unlocked!</div>
-                          <div className="text-[11px] text-green-700">FREE Cold Coffee</div>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => claimFreePromoItem('COFFEE_599')}
-                        className="px-3 py-1.5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-[10px] font-extrabold shadow-xs transition-all flex items-center gap-1"
-                      >
-                        <Gift className="w-3.5 h-3.5" />
-                        <span>Add Free Coffee</span>
-                      </button>
-                    </div>
-                  )}
-
-                </div>
-
                 {/* Itemized List */}
                 <div className="divide-y divide-gray-100 border border-gray-100 rounded-2xl bg-white overflow-hidden shadow-xs">
                   {cart.map((ci) => (
-                    <div key={ci.cartItemId} className={`p-3.5 flex items-center justify-between gap-3 ${ci.isFreePromo ? 'bg-amber-50/40' : ''}`}>
+                    <div key={ci.cartItemId} className="p-3.5 flex items-center justify-between gap-3">
                       
                       {/* Details */}
                       <div className="flex-1 min-w-0">
@@ -339,11 +199,6 @@ export default function CartDrawer() {
                           <span className="text-xs font-bold text-[#1D1D1F] font-heading truncate">
                             {ci.name}
                           </span>
-                          {ci.isFreePromo && (
-                            <span className="px-2 py-0.2 rounded bg-green-600 text-white text-[9px] font-extrabold">
-                              {ci.promoLabel || 'FREE — Offer'}
-                            </span>
-                          )}
                         </div>
 
                         {ci.sizeName && (
@@ -363,44 +218,30 @@ export default function CartDrawer() {
                           </div>
                         )}
 
-                        {/* Price rendering for Free vs Paid */}
-                        <div className="text-xs font-extrabold mt-1 flex items-center gap-2">
-                          {ci.isFreePromo ? (
-                            <>
-                              <span className="line-through text-gray-400 font-semibold">₹{ci.originalPrice}</span>
-                              <span className="text-green-600 font-extrabold">₹0 (FREE — Offer)</span>
-                            </>
-                          ) : (
-                            <span className="text-[#1D1D1F]">₹{ci.unitPrice * ci.quantity}</span>
-                          )}
+                        <div className="text-xs font-extrabold text-[#1D1D1F] mt-1">
+                          ₹{ci.unitPrice * ci.quantity}
                         </div>
                       </div>
 
-                      {/* Quantity Stepper / Remove */}
+                      {/* Quantity Stepper */}
                       <div className="flex items-center gap-2">
-                        {!ci.isFreePromo ? (
-                          <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-xl border border-gray-200">
-                            <button
-                              onClick={() => updateQuantity(ci.cartItemId, -1)}
-                              className="w-7 h-7 rounded-lg bg-white text-[#1D1D1F] flex items-center justify-center font-bold shadow-xs active:scale-95"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="text-xs font-bold text-[#1D1D1F] w-4 text-center">
-                              {ci.quantity}
-                            </span>
-                            <button
-                              onClick={() => updateQuantity(ci.cartItemId, 1)}
-                              className="w-7 h-7 rounded-lg bg-white text-[#1D1D1F] flex items-center justify-center font-bold shadow-xs active:scale-95"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="text-xs font-extrabold text-green-700 bg-green-50 px-2 py-1 rounded-lg border border-green-200">
-                            1 FREE
+                        <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-xl border border-gray-200">
+                          <button
+                            onClick={() => updateQuantity(ci.cartItemId, -1)}
+                            className="w-7 h-7 rounded-lg bg-white text-[#1D1D1F] flex items-center justify-center font-bold shadow-xs active:scale-95"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-xs font-bold text-[#1D1D1F] w-4 text-center">
+                            {ci.quantity}
                           </span>
-                        )}
+                          <button
+                            onClick={() => updateQuantity(ci.cartItemId, 1)}
+                            className="w-7 h-7 rounded-lg bg-white text-[#1D1D1F] flex items-center justify-center font-bold shadow-xs active:scale-95"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
 
                         <button
                           onClick={() => removeFromCart(ci.cartItemId)}
@@ -505,22 +346,12 @@ export default function CartDrawer() {
                   </div>
                 </div>
 
-                {/* Bill Breakdown with Offers & Discounts */}
+                {/* Bill Breakdown */}
                 <div className="bg-gray-50 rounded-2xl p-3.5 border border-gray-200/80 space-y-1.5 text-xs">
                   <div className="flex justify-between text-secondaryText">
                     <span>Subtotal ({totalItemCount} items)</span>
-                    <span className="font-semibold text-[#1D1D1F]">₹{promoEval.paidSubtotal}</span>
+                    <span className="font-semibold text-[#1D1D1F]">₹{cartSubtotal}</span>
                   </div>
-
-                  {promoEval.loyaltyDiscountAmount > 0 && (
-                    <div className="flex justify-between text-green-700 font-bold">
-                      <span className="flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                        <span>Loyalty Reward (12% OFF)</span>
-                      </span>
-                      <span>-₹{promoEval.loyaltyDiscountAmount}</span>
-                    </div>
-                  )}
 
                   <div className="flex justify-between text-secondaryText">
                     <span>Taxes & Service</span>
@@ -528,15 +359,9 @@ export default function CartDrawer() {
                   </div>
 
                   <div className="pt-2 border-t border-gray-200 flex justify-between text-sm font-extrabold text-[#1D1D1F]">
-                    <span>Final Payable Total</span>
-                    <span className="text-[#B8860B]">₹{promoEval.grandTotal}</span>
+                    <span>Total Amount</span>
+                    <span className="text-[#B8860B]">₹{cartSubtotal}</span>
                   </div>
-                </div>
-
-                {/* Checkout Offer Summary Header */}
-                <div className="text-[11px] font-bold text-gray-500 flex items-center gap-1 px-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                  <span>Your active offers & free rewards will be included on WhatsApp</span>
                 </div>
               </>
             )}
@@ -548,7 +373,7 @@ export default function CartDrawer() {
             <div className="p-4 bg-[#FFFFFF] border-t border-gray-200 flex items-center justify-between gap-3 shadow-lg">
               <div>
                 <div className="text-[10px] text-secondaryText uppercase tracking-wider font-bold">Total Payable</div>
-                <div className="text-lg font-extrabold text-[#1D1D1F]">₹{promoEval.grandTotal}</div>
+                <div className="text-lg font-extrabold text-[#1D1D1F]">₹{cartSubtotal}</div>
               </div>
 
               <button
