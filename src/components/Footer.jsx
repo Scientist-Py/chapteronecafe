@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, MessageCircle, MapPin, Heart, Star, ExternalLink } from 'lucide-react';
+import { Instagram, MessageCircle, MapPin, Heart } from 'lucide-react';
 import { restaurantInfo } from '../data/menuData';
 
 export default function Footer() {
@@ -20,7 +20,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-xs leading-relaxed text-secondaryText">
-            Baghpat's premier cafe. Home of the 17-inch Giant Pizza, handcrafted wheat momos, cold coffees, and wheat burgers.
+            Baghpat's premier cafe. Handcrafted artisanal pizzas, fresh burgers, wraps, shakes, and specialty cold coffees.
           </p>
         </div>
 
@@ -53,7 +53,7 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Social & Google 5-Star Review Badge */}
+        {/* Social Links */}
         <div>
           <h4 className="text-xs font-bold text-[#1D1D1F] font-heading uppercase tracking-wider mb-2.5">
             Connect With Us
@@ -87,25 +87,6 @@ export default function Footer() {
               <MapPin className="w-4 h-4" />
             </a>
           </div>
-
-          {/* 5-Star Google Review Badge */}
-          <a
-            href={restaurantInfo.googleMapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200/80 block hover:bg-amber-100/80 transition-all shadow-xs group"
-          >
-            <div className="flex items-center gap-1 mb-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3 h-3 fill-[#B8860B] text-[#B8860B]" />
-              ))}
-              <span className="text-[10px] text-[#B8860B] font-extrabold ml-1">4.9 / 5</span>
-            </div>
-            <div className="text-xs font-bold text-[#1D1D1F] flex items-center justify-between">
-              <span>Rate 5 Stars on Google</span>
-              <ExternalLink className="w-3.5 h-3.5 text-[#B8860B] group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </a>
         </div>
 
       </div>

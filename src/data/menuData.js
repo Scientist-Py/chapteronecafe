@@ -33,8 +33,8 @@ export const addOns = [
 export const menuCategoriesList = [
   { id: "all", name: "All Items", icon: "✨" },
   { id: "Pizza", name: "Pizza", icon: "🍕" },
-  { id: "Burger", name: "Wheat Burgers", icon: "🍔" },
-  { id: "Momos", name: "Wheat Momos", icon: "🥟" },
+  { id: "Burger", name: "Burgers", icon: "🍔" },
+  { id: "Momos", name: "Momos", icon: "🥟" },
   { id: "Pasta", name: "Pasta Bowls", icon: "🍝" },
   { id: "Sandwich", name: "Sandwiches & Subs", icon: "🥪" },
   { id: "Garlic Bread", name: "Garlic Bread", icon: "🥖" },

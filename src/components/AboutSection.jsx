@@ -4,9 +4,9 @@ import { Sparkles, Heart, Award, ShieldCheck } from 'lucide-react';
 
 export default function AboutSection() {
   const highlights = [
-    { icon: <Award className="w-5 h-5 text-[#B8860B]" />, title: "Baghpat Landmark", desc: "Serving the famous 17-Inch Giant Pizza." },
-    { icon: <ShieldCheck className="w-5 h-5 text-[#B8860B]" />, title: "100% Wholesome", desc: "Fresh high-fiber wheat momos & wheat burgers." },
-    { icon: <Heart className="w-5 h-5 text-[#B8860B]" />, title: "Luxury Ambience", desc: "Crafted for memorable dining moments." }
+    { icon: <Award className="w-5 h-5 text-[#B8860B]" />, title: "Quality First", desc: "Finest artisanal ingredients & recipes." },
+    { icon: <ShieldCheck className="w-5 h-5 text-[#B8860B]" />, title: "Fresh Preparation", desc: "Prepared fresh upon each order." },
+    { icon: <Heart className="w-5 h-5 text-[#B8860B]" />, title: "Warm Ambience", desc: "Crafted for memorable dining moments." }
   ];
 
   return (
@@ -33,7 +33,7 @@ export default function AboutSection() {
             </h2>
 
             <p className="text-xs sm:text-sm text-secondaryText leading-relaxed">
-              We are proud to serve one of Baghpat's most unique cafe experiences with premium ambience, delicious food, fresh ingredients and the biggest pizza in town.
+              We are proud to serve one of Baghpat's most loved cafe experiences with premium ambience, delicious food, fresh ingredients, and welcoming hospitality.
             </p>
 
             <p className="text-xs sm:text-sm text-secondaryText leading-relaxed">
@@ -77,12 +77,12 @@ export default function AboutSection() {
 
               <div className="pt-4 border-t border-gray-100 grid grid-cols-2 gap-3 text-center">
                 <div>
-                  <div className="text-xl font-extrabold text-[#B8860B]">17"</div>
-                  <div className="text-[11px] text-secondaryText">Giant Signature Pizza</div>
+                  <div className="text-xl font-extrabold text-[#B8860B]">100%</div>
+                  <div className="text-[11px] text-secondaryText">Fresh & Authentic</div>
                 </div>
                 <div>
-                  <div className="text-xl font-extrabold text-[#B8860B]">4.9 ★</div>
-                  <div className="text-[11px] text-secondaryText">Customer Rating</div>
+                  <div className="text-xl font-extrabold text-[#B8860B]">Artisan</div>
+                  <div className="text-[11px] text-secondaryText">Craft Recipes</div>
                 </div>
               </div>
             </div>
