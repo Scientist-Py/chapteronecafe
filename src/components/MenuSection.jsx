@@ -145,7 +145,11 @@ export default function MenuSection({ onSelectItem }) {
                       </div>
 
                       {item.badge && (
-                        <span className="px-2 py-0.5 rounded-md bg-amber-50 text-[#B8860B] border border-amber-200 text-[9px] font-bold uppercase tracking-wider">
+                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${
+                          item.isOutOfStock 
+                            ? 'bg-gray-100 text-gray-500 border border-gray-200' 
+                            : 'bg-amber-50 text-[#B8860B] border border-amber-200'
+                        }`}>
                           {item.badge}
                         </span>
                       )}
@@ -175,14 +179,14 @@ export default function MenuSection({ onSelectItem }) {
                   {/* Right Column: Image with Floating ADD Button */}
                   <div className="relative flex-shrink-0">
                     <div 
-                      onClick={() => onSelectItem(item)}
-                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 shadow-xs cursor-pointer group-hover:scale-102 transition-transform"
+                      onClick={() => !item.isOutOfStock && onSelectItem(item)}
+                      className={`w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 shadow-xs transition-transform ${item.isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer group-hover:scale-102'}`}
                     >
                       {item.image ? (
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-300"
+                          className={`w-full h-full object-cover transition-transform duration-300 ${item.isOutOfStock ? 'grayscale' : 'group-hover:scale-108'}`}
                           loading="lazy"
                           decoding="async"
                         />
@@ -193,14 +197,20 @@ export default function MenuSection({ onSelectItem }) {
                       )}
                     </div>
 
-                    {/* Floating ADD / SELECT Button */}
-                    <button
-                      onClick={() => onSelectItem(item)}
-                      className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-lg bg-white border border-gray-300 text-green-700 font-extrabold text-xs shadow-md hover:bg-green-600 hover:text-white hover:border-green-600 transition-all flex items-center gap-1 active:scale-95 whitespace-nowrap z-10"
-                    >
-                      <span>ADD</span>
-                      <Plus className="w-3 h-3 stroke-[3]" />
-                    </button>
+                    {/* Floating ADD / OUT OF STOCK Button */}
+                    {item.isOutOfStock ? (
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-lg bg-gray-200 text-gray-500 font-bold text-[10px] uppercase shadow-xs whitespace-nowrap z-10 border border-gray-300">
+                        Out of Stock
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => onSelectItem(item)}
+                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-lg bg-white border border-gray-300 text-green-700 font-extrabold text-xs shadow-md hover:bg-green-600 hover:text-white hover:border-green-600 transition-all flex items-center gap-1 active:scale-95 whitespace-nowrap z-10"
+                      >
+                        <span>ADD</span>
+                        <Plus className="w-3 h-3 stroke-[3]" />
+                      </button>
+                    )}
                   </div>
 
                 </motion.div>
